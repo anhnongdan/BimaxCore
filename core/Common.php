@@ -14,6 +14,7 @@ use Piwik\Intl\Data\Provider\LanguageDataProvider;
 use Piwik\Intl\Data\Provider\RegionDataProvider;
 use Piwik\Plugins\UserCountry\LocationProvider\DefaultProvider;
 use Piwik\Tracker\Cache as TrackerCache;
+use Piwik\Log;
 
 /**
  * Contains helper methods used by both Piwik Core and the Piwik Tracking engine.
@@ -50,6 +51,8 @@ class Common
     }
 
     /**
+     * [Thangnt 2017-03-05] Route imported logs into log_link_visit_action_tracker
+     * 
      * Returns a prefixed table name.
      *
      * The table prefix is determined by the `[database] tables_prefix` INI config
@@ -59,14 +62,23 @@ class Common
      * @return string  The prefixed name, ie "piwik-production_log_visit".
      * @api
      */
+//    public static function prefixTable($table)
+//    {
+//        $prefix = Config::getInstance()->database['tables_prefix'];
+//        return $prefix . $table;
+//    }
     public static function prefixTable($table, $isTracker=0)
     {
         $prefix = Config::getInstance()->database['tables_prefix'];
-	if($isTracker == 1)
-		$table = $table . "_tracker";
+        if($isTracker == 1 && $table == "log_link_visit_action") {
+                $table = $table . "_tracker";
+        } elseif ($isTracker == 1) {
+            Log::debug("Common::%s Unexpected table name request, no tracker table for: %s", __FUNCTION__, $table);
+        }
         return $prefix . $table;
     }
 
+    
     /**
      * Returns an array containing the prefixed table names of every passed argument.
      *
@@ -275,12 +287,6 @@ class Common
             return $value;
         } elseif (is_string($value)) {
             $value = self::sanitizeString($value);
-
-            if (!$alreadyStripslashed) {
-                // a JSON array was already stripslashed, don't do it again for each value
-
-                $value = self::undoMagicQuotes($value);
-            }
         } elseif (is_array($value)) {
             foreach (array_keys($value) as $key) {
                 $newKey = $key;
@@ -381,27 +387,6 @@ class Common
     }
 
     /**
-     * Undo the damage caused by magic_quotes; deprecated in php 5.3 but not removed until php 5.4
-     *
-     * @param string
-     * @return string  modified or not
-     */
-    private static function undoMagicQuotes($value)
-    {
-        static $shouldUndo;
-
-        if (!isset($shouldUndo)) {
-            $shouldUndo = version_compare(PHP_VERSION, '5.4', '<') && get_magic_quotes_gpc();
-        }
-
-        if ($shouldUndo) {
-            $value = stripslashes($value);
-        }
-
-        return $value;
-    }
-
-    /**
      * @param string $value
      * @return string Line breaks and line carriage removed
      */
@@ -477,7 +462,7 @@ class Common
 
         // we deal w/ json differently
         if ($varType == 'json') {
-            $value = self::undoMagicQuotes($requestArrayToUse[$varName]);
+            $value = $requestArrayToUse[$varName];
             $value = json_decode($value, $assoc = true);
             return self::sanitizeInputValues($value, $alreadyStripslashed = true);
         }

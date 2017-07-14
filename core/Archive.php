@@ -32,7 +32,7 @@ use Piwik\Period\Factory as PeriodFactory;
  * reports using the {@link getBlob()}, {@link getDataTable()} and {@link getDataTableExpanded()} methods.
  *
  * If you're creating an API that returns report data, you may want to use the
- * {@link getDataTableFromArchive()} helper function.
+ * {@link createDataTableFromArchive()} helper function.
  *
  * ### Learn more
  *
@@ -85,8 +85,7 @@ use Piwik\Period\Factory as PeriodFactory;
  *
  *     public function getMyReport($idSite, $period, $date, $segment = false, $expanded = false)
  *     {
- *         $dataTable = Archive::getDataTableFromArchive('MyPlugin_MyReport', $idSite, $period, $date, $segment, $expanded);
- *         $dataTable->queueFilter('ReplaceColumnNames');
+ *         $dataTable = Archive::createDataTableFromArchive('MyPlugin_MyReport', $idSite, $period, $date, $segment, $expanded);
  *         return $dataTable;
  *     }
  *
@@ -215,17 +214,22 @@ class Archive
             $timezone = Site::getTimezoneFor($websiteIds[0]);
         }
 
+        // [Thangnt 2017-02-28] Debug for incorrect archiving result
+        
         $logger = StaticContainer::get('Psr\Log\LoggerInterface');
-        $logger->debug("From build() of Archive: the date takes in: $strDate");
+        $logger->debug("From build() of Archive: the date takes in: %s, period: %s, timezone: %s", [$strDate, $period, $timezone]);
         
         if (Period::isMultiplePeriod($strDate, $period)) {
+            $logger->debug("From build() of Archive: $strDate is Multiple Period");
             $oPeriod    = PeriodFactory::build($period, $strDate, $timezone);
             $allPeriods = $oPeriod->getSubperiods();
         } else {
+            $logger->debug("From build() of Archive: $strDate is NOT Multiple Period");
             $oPeriod    = PeriodFactory::makePeriodFromQueryParams($timezone, $period, $strDate);
             $allPeriods = array($oPeriod);
         }
 
+        $logger->debug("From build() of Archive: parsed Period is: %s", [$oPeriod->getLabel()]);
         $segment        = new Segment($segment, $websiteIds);
         $idSiteIsAll    = $idSites == self::REQUEST_ALL_WEBSITES_FLAG;
         $isMultipleDate = Period::isMultiplePeriod($strDate, $period);
@@ -441,45 +445,6 @@ class Archive
      * Helper function that creates an Archive instance and queries for report data using
      * query parameter data. API methods can use this method to reduce code redundancy.
      *
-     * @param string $name The name of the report to return.
-     * @param int|string|array $idSite @see {@link build()}
-     * @param string $period @see {@link build()}
-     * @param string $date @see {@link build()}
-     * @param string $segment @see {@link build()}
-     * @param bool $expanded If true, loads all subtables. See {@link getDataTableExpanded()}
-     * @param int|null $idSubtable See {@link getDataTableExpanded()}
-     * @param int|null $depth See {@link getDataTableExpanded()}
-     * @throws \Exception
-     * @return DataTable|DataTable\Map See {@link getDataTable()} and
-     *                                 {@link getDataTableExpanded()} for more
-     *                                 information
-     * @deprecated Since Piwik 2.12.0 Use Archive::createDataTableFromArchive() instead
-     */
-    public static function getDataTableFromArchive($name, $idSite, $period, $date, $segment, $expanded,
-                                                   $idSubtable = null, $depth = null)
-    {
-        Piwik::checkUserHasViewAccess($idSite);
-
-        $archive = Archive::build($idSite, $period, $date, $segment, $_restrictSitesToLogin = false);
-        if ($idSubtable === false) {
-            $idSubtable = null;
-        }
-
-        if ($expanded) {
-            $dataTable = $archive->getDataTableExpanded($name, $idSubtable, $depth);
-        } else {
-            $dataTable = $archive->getDataTable($name, $idSubtable);
-        }
-
-        $dataTable->queueFilter('ReplaceSummaryRowLabel');
-
-        return $dataTable;
-    }
-
-    /**
-     * Helper function that creates an Archive instance and queries for report data using
-     * query parameter data. API methods can use this method to reduce code redundancy.
-     *
      * @param string $recordName The name of the report to return.
      * @param int|string|array $idSite @see {@link build()}
      * @param string $period @see {@link build()}
@@ -493,12 +458,24 @@ class Archive
      */
     public static function createDataTableFromArchive($recordName, $idSite, $period, $date, $segment, $expanded = false, $flat = false, $idSubtable = null, $depth = null)
     {
+        Piwik::checkUserHasViewAccess($idSite);
+
         if ($flat && !$idSubtable) {
             $expanded = true;
         }
 
-        $dataTable = self::getDataTableFromArchive($recordName, $idSite, $period, $date, $segment, $expanded, $idSubtable, $depth);
+        $archive = Archive::build($idSite, $period, $date, $segment, $_restrictSitesToLogin = false);
+        if ($idSubtable === false) {
+            $idSubtable = null;
+        }
 
+        if ($expanded) {
+            $dataTable = $archive->getDataTableExpanded($recordName, $idSubtable, $depth);
+        } else {
+            $dataTable = $archive->getDataTable($recordName, $idSubtable);
+        }
+
+        $dataTable->queueFilter('ReplaceSummaryRowLabel');
         $dataTable->queueFilter('ReplaceColumnNames');
 
         if ($expanded) {
@@ -836,7 +813,7 @@ class Archive
 //                echo "*****\n\n";
 
                 //till here, the period still retain Hour attr.
-                Log::DEBUG("[Thangnt 2016-11-04] the periods (CoreArchive accepted hour period): {$period->getLabel()}, {$period->getPrettyString()}");
+                Log::DEBUG("CoreArchive::%s, [Thangnt 2016-11-04] the periods: %s, %s", __FUNCTION__, $period->getLabel(), $period->getPrettyString());
                 $this->prepareArchive($archiveGroups, $site, $period);
             }
         }
