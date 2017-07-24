@@ -141,7 +141,7 @@ disable_merged_assets = 0
 time_limit = 600
 my_period = 600
 my_nperiod_back = 2
-bimax_product = ibimax
+bimax_product =cbimax
 home_url=pw1
 
 ; the following settings control whether Unique Visitors `nb_uniq_visitors` and Unique users `nb_users` will be processed for different period types.
@@ -596,7 +596,7 @@ enable_auto_update = 1
 
 ; By setting this option to 0, no emails will be sent in case of an available core.
 ; If set to 0 it also disables the "sent plugin update emails" feature in general and the related setting in the UI.
-enable_update_communication = 1
+enable_update_communication = 0
 
 ; This controls whether the pivotBy query parameter can be used with any dimension or just subtable
 ; dimensions. If set to 1, it will fetch a report with a segment for each row of the table being pivoted.
