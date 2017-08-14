@@ -272,9 +272,13 @@ class PluginsArchiver
          * The Day archive will be re-routed to the path
          * that aggregate archive from Hour.
          */
-        if ($this->params->getPeriod()->getLabel()=='day') {
-            return $this->aggregateDayVisitsMetricsFromHour();
-        }
+        /**
+         * [Thangnt 2017-08-11]
+         * Day archiving doesn't go to this path anymore
+         */
+//        if ($this->params->getPeriod()->getLabel()=='day') {
+//            return $this->aggregateDayVisitsMetricsFromHour();
+//        }
 
 //        $e = new \Exception;
 //        echo " From aggregateDayVisitsMetrics() of PluginsArchiver, let's see how it's called: \n";

@@ -245,6 +245,8 @@ class ArchiveProcessor
     }
 
     /**
+     * [Thangnt 2017-08-11] Day nb_visit and visit length intervention should be here
+     * 
      * Aggregates one or more metrics for every subperiod of the current period and inserts the results
      * as metrics for the current period.
      *
@@ -418,6 +420,33 @@ class ArchiveProcessor
         }
         return $operationForColumn;
     }
+    
+    /**
+     * [Thangnt 2017-08-14] Visit converted is reserved for web tracking (e.g e-commerce)
+     * no need to calculate that metric for now.
+     * 
+     * @param Row $row
+     * @return type
+     */
+    protected function recalculateVisitAndDurationForDay(Row $row)
+    {
+        // All plugins' archiving process go down this path, 
+        // this conditional check help to eliminate running this function
+        // for every plugins, and other non-related archives.
+        if ($row->getColumn('nb_visits') === false) {
+            return;
+        }
+        $metrics = array(
+            Metrics::INDEX_NB_VISITS,
+            Metrics::INDEX_SUM_VISIT_LENGTH,
+            Metrics::INDEX_NB_VISITS_CONVERTED,
+        );
+        $visits = $this->computeNbUniques($metrics);
+        Log::debug("ArchiveProcessor::%s, recalculate result: %s, %s", __FUNCTION__, $visits[Metrics::INDEX_NB_VISITS], $visits[Metrics::INDEX_SUM_VISIT_LENGTH]);
+        $row->setColumn('nb_visits', $visits[Metrics::INDEX_NB_VISITS]);
+        $row->setColumn('sum_visit_length', $visits[Metrics::INDEX_SUM_VISIT_LENGTH]);
+        $row->setColumn('nb_visit_converted', $visits[Metrics::INDEX_NB_VISITS_CONVERTED]);
+    }
 
     protected function enrichWithUniqueVisitorsMetric(Row $row)
     {
@@ -570,7 +599,7 @@ class ArchiveProcessor
         }
 
         $operationForColumn = $this->getOperationForColumns($columns, $operationToApply);
-
+        
         $dataTable = $this->getArchive()->getDataTableFromNumeric($columns);
 
         $results = $this->getAggregatedDataTableMap($dataTable, $operationForColumn);
@@ -582,6 +611,16 @@ class ArchiveProcessor
         if ($rowMetrics === false) {
             $rowMetrics = new Row;
         }
+        
+        
+        /**
+         * [Thangnt 2017-08-14] 
+         */
+        if ($this->params->getPeriod()->getLabel() === 'day') {
+            Log::debug("ArchiveProcessor::%s, recalculate visit for day", __FUNCTION__);
+            $this->recalculateVisitAndDurationForDay($rowMetrics);
+        }
+        
         $this->enrichWithUniqueVisitorsMetric($rowMetrics);
         $this->renameColumnsAfterAggregation($results, self::$columnsToRenameAfterAggregation);
 

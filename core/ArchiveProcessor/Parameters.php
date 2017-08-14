@@ -164,6 +164,7 @@ class Parameters
     }
 
     /**
+     * [Thangnt 2017-08-11] This is for hour only
      * @return bool
      */
     public function isSingleSiteDayArchive()

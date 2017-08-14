@@ -4,6 +4,10 @@
 /nguyenkim
 /mediatest
 
+/lang
+/misc
+/plugins
+
 php_errors.log
 *.tmp
 *.pyc
@@ -20,22 +24,7 @@ php_errors.log
 /docs/
 /favicon.ico
 /js/yui*
-/misc/*.dat
-/misc/*.dat.gz
-/misc/user/logo-header.png
-/misc/user/logo.png
-/misc/user/logo.svg
-/misc/user/favicon.png
 /piwik-min.js
-/plugins/*.zip
-/plugins/ImageGraph/fonts/unifont.ttf
-/plugins/ImageGraph/fonts/unifont.ttf.zip
-/plugins/*/tests/System/processed
-/plugins/*/Test/System/processed
-/plugins/*/tests/UI/processed-ui-screenshots
-/plugins/*/Test/UI/processed-ui-screenshots
-/plugins/*/tests/UI/screenshot-diffs
-/plugins/*/Test/UI/screenshot-diffs
 /robots.txt
 /tmp/*
 !/tmp/.gitkeep
@@ -57,11 +46,7 @@ php_errors.log
 /config/.htaccess
 /core/.htaccess
 /js/.htaccess
-/lang/.htaccess
 /libs/.htaccess
-/misc/.htaccess
-/misc/cron/.htaccess
-/plugins/.htaccess
 /tests/resources/overlay-test-site-real/
 /tests/PHPUnit/proxy/libs
 /tests/PHPUnit/proxy/piwik.js
@@ -69,7 +54,5 @@ php_errors.log
 /tests/PHPUnit/proxy/tests
 /tests/resources/piwik.test.js
 /config/*.config.ini.php
-/Vagrantfile
-/misc/vagrant
 /.vagrant
 /plugins/.gitignore

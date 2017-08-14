@@ -813,7 +813,7 @@ class Archive
 //                echo "*****\n\n";
 
                 //till here, the period still retain Hour attr.
-                Log::DEBUG("CoreArchive::%s, [Thangnt 2016-11-04] the periods: %s, %s", __FUNCTION__, $period->getLabel(), $period->getPrettyString());
+                Log::DEBUG("CoreArchive::%s, [Thangnt 2016-11-04] the periods: %s, %s, arc. groups: %s", __FUNCTION__, $period->getLabel(), $period->getPrettyString(), implode(',', $archiveGroups));
                 $this->prepareArchive($archiveGroups, $site, $period);
             }
         }
