@@ -350,7 +350,10 @@ class ArchiveProcessor
     /**
      * This method selects all DataTables that have the name $name over the period.
      * All these DataTables are then added together, and the resulting DataTable is returned.
-     *
+     * 
+     * [Thangnt 2017-08-15] It seems that there's no exception for Uniq. Visitor in this 
+     * calculation?
+     * 
      * @param string $name
      * @param array $columnsAggregationOperation Operations for aggregating columns, @see Row::sumRow()
      * @param array $columnsToRenameAfterAggregation columns in the array (old name, new name) to be renamed as the sum operation is not valid on them (eg. nb_uniq_visitors->sum_daily_nb_uniq_visitors)
@@ -360,7 +363,9 @@ class ArchiveProcessor
     {
         // By default we shall aggregate all sub-tables.
         $dataTable = $this->getArchive()->getDataTableExpanded($name, $idSubTable = null, $depth = null, $addMetadataSubtableId = false);
-
+        
+        //Log::debug("Ar.Proc::aggregateDataTableRecord, got DT for plugins: %s", $dataTable->__toString());
+        
         $columnsRenamed = false;
 
         if ($dataTable instanceof Map) {

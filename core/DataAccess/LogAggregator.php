@@ -373,6 +373,9 @@ class LogAggregator
             }
 
             return $rankingQuery->execute($query['sql'], $query['bind']);
+            
+            //\Piwik\Log::DEBUG('LogAggr.queryVisitsByDimension: WITH ranking query: %s', $query['sql']);
+            //\Piwik\Log::DEBUG('LogAggr.queryVisitsByDimension: bind: %s', $query['bind']);
         }
 
         

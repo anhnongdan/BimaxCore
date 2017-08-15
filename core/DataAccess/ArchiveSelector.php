@@ -184,7 +184,7 @@ class ArchiveSelector
             /** @var Period $period */
             $table = ArchiveTableCreator::getNumericTable($period->getDateStart());
             $monthToPeriods[$table][] = $period;
-            \Piwik\Log::debug("ArchiveSelector:%s get table %s with period: %s", __FUNCTION__, $table, $period->toString());
+            //\Piwik\Log::debug("ArchiveSelector:%s get table %s with period: %s", __FUNCTION__, $table, $period->toString());
         }
 
         // for every month within the archive query, select from numeric table
@@ -222,7 +222,7 @@ class ArchiveSelector
                     
                     //$bind[] = $period->getDateStart()->toString('Y-m-d');
                     //$bind[] = $period->getDateEnd()->toString('Y-m-d');
-                    \Piwik\Log::debug("ArchiveSelector: get period conditions: id: %s, %s - %s", $period->getId(), $period->getDateStart()->toString(), $period->getDateEnd()->toString());
+                    //\Piwik\Log::debug("ArchiveSelector: get period conditions: id: %s, %s - %s", $period->getId(), $period->getDateStart()->toString(), $period->getDateEnd()->toString());
                 }
 
                 $dateCondition .= ')';

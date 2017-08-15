@@ -49,6 +49,18 @@ class PluginsArchiver
      */
     public static $archivers = array();
 
+    /**
+     * [Thangnt 2017-08-15] PluginsArchiver need to keep a list of all the plugins
+     * that calculate archive with actions (use log_link_visit_action table).
+     */
+    const ACTION_PLUGINS = array (
+        'Actions',
+        'Bandwidth',
+        'DevicesDetection',
+        'Events',
+    );
+
+
     public function __construct(Parameters $params, $isTemporaryArchive)
     {
         $this->params = $params;
@@ -142,7 +154,12 @@ class PluginsArchiver
 			//[Thangnt 2017-01-20]
 			//Even hourly data can be calculated from my_Period.
                         //if ($pluginName === 'VisitTime' || $pluginName === 'MediaAnalytics') {
-			if ($pluginName === 'MediaAnalytics') {
+			
+                        /**
+                         * [Thangnt 2017-08-15] https://github.com/anhnongdan/cBIMAX/issues/31
+                         */
+                        //if ($pluginName === 'MediaAnalytics') {
+                        if (!in_array($pluginName, self::ACTION_PLUGINS)) {
                             Log::debug("PluginsArchiver::%s: Archiving hourly data is skipped for plugin '%s'.", __FUNCTION__, $pluginName);
                         } else {
                             Log::debug("PluginsArchiver::%s: Archiving day (actually hour) reports for plugin '%s'.", __FUNCTION__, $pluginName);
@@ -156,7 +173,8 @@ class PluginsArchiver
                         Log::debug("PluginsArchiver::%s: Archiving period reports for plugin '%s'.", __FUNCTION__, $pluginName);
 
                         //if ($pluginName === 'VisitTime' || $pluginName === 'MediaAnalytics') {
-			if ($pluginName === 'MediaAnalytics') {
+			//if ($pluginName === 'MediaAnalytics') {
+                        if (!in_array($pluginName, self::ACTION_PLUGINS)) {
                             Log::debug("PluginsArchiver::%s: Archiving day reports for plugin '%s' before aggregate Multiple Reports.", __FUNCTION__, $pluginName);
                             $archiver->aggregateDayReport();
                         }
