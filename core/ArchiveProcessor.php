@@ -445,12 +445,16 @@ class ArchiveProcessor
             Metrics::INDEX_NB_VISITS,
             Metrics::INDEX_SUM_VISIT_LENGTH,
             Metrics::INDEX_NB_VISITS_CONVERTED,
+            Metrics::INDEX_NB_ACTIONS,
         );
+        // use computeNbUniques just to call logAggregator
+        // the function name doesn't mean it can only calculate 'unique' metrics.
         $visits = $this->computeNbUniques($metrics);
         Log::debug("ArchiveProcessor::%s, recalculate result: %s, %s", __FUNCTION__, $visits[Metrics::INDEX_NB_VISITS], $visits[Metrics::INDEX_SUM_VISIT_LENGTH]);
         $row->setColumn('nb_visits', $visits[Metrics::INDEX_NB_VISITS]);
         $row->setColumn('sum_visit_length', $visits[Metrics::INDEX_SUM_VISIT_LENGTH]);
         $row->setColumn('nb_visit_converted', $visits[Metrics::INDEX_NB_VISITS_CONVERTED]);
+        $row->setColumn('nb_actions', $visits[Metrics::INDEX_NB_ACTIONS]);
     }
 
     protected function enrichWithUniqueVisitorsMetric(Row $row)
